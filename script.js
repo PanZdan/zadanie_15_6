@@ -50,6 +50,13 @@ class Stopwatch {
     this.running = false;
     clearInterval(this.watch);
   }
+
+  resetWatch() {
+    this.times.seconds = 0;
+    this.times.miliseconds = 0;
+    this.times.minutes = 0;
+    this.print;
+  }
 }
 
 const stopwatch = new Stopwatch(
@@ -60,6 +67,9 @@ startButton.addEventListener('click', () => stopwatch.start());
 
 var stopButton = document.getElementById('stop');
 stopButton.addEventListener('click', () => stopwatch.stop());
+
+var resetButton = document.getElementById('resetWatch');
+resetButton.addEventListener('click', () => stopwatch.resetWatch());
 
 function pad0(value) {
   let result = value.toString();

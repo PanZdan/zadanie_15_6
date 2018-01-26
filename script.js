@@ -1,69 +1,93 @@
-class Stopwatch {
-  constructor(display) {
-    this.running = false;
-    this.display = display;
-    this.reset();
-    this.print(this.times);
+class Stopwatch extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      running: false,
+      times: {
+        minutes: 0,
+        seconds: 0,
+        miliseconds: 0
+      }
+    }
   }
 
   reset() {
-    this.times = {
-      minutes: 0,
-      seconds: 0,
-      miliseconds: 0,
-    };
-    this.print();
+    this.stop();
+    this.setState({
+      times: {
+        minutes: 0,
+        seconds: 0,
+        miliseconds: 0
+      }
+    });
   }
 
-  print() {
-    this.display.innerText = this.format(this.times);
-  }
-
-  format(times) {
-    return `${pad0(times.minutes)}:${pad0(times.seconds)}:${pad0(Math.floor(times.miliseconds))}`;
+  getFormattedTime() {
+    const minutes = this.state.times.minutes;
+    const seconds = this.state.times.seconds;
+    const miliseconds = this.state.times.miliseconds;
+    return `${pad0(minutes)}:${pad0(seconds)}:${pad0(Math.floor(miliseconds))}`;
   }
   
   start() {
-    if (!this.running) {
-      this.running = true;
-      this.watch = setInterval(() => this.step(), 10);
+    if (!this.state.running) {
+      this.setState({
+        running: true,
+        watch: setInterval(() => this.step(), 10)
+      });
     }
   }
+
   step() {
-    if (!this.running) return;
+    if (!this.state.running) return;
     this.calculate();
-    this.print();
   }
 
   calculate() {
-    this.times.miliseconds += 1;
-    if (this.times.miliseconds >= 100) {
-      this.times.seconds += 1;
-      this.times.miliseconds = 0;
+    let minutes = this.state.times.minutes;
+    let seconds = this.state.times.seconds;
+    let miliseconds = this.state.times.miliseconds;
+
+    miliseconds += 1;
+    if (miliseconds >= 100) {
+      seconds += 1;
+      miliseconds = 0;
     }
-    if (this.times.seconds >= 60) {
-      this.times.minutes += 1;
-      this.times.seconds = 0;
+    if (seconds >= 60) {
+      minutes += 1;
+      seconds = 0;
     }
+
+    this.setState({
+      times: {
+        minutes: minutes,
+        seconds: seconds,
+        miliseconds: miliseconds
+      }
+    });
   }
 
   stop() {
-    this.running = false;
-    clearInterval(this.watch);
+    this.setState({
+      running: false
+    })
+    clearInterval(this.state.watch);
+  }
+
+  render() {
+    return (
+      <div>
+        <nav class="controls">
+          <button class="button" onClick={this.start.bind(this)}>Start</button>
+          <button class="button" onClick={this.stop.bind(this)}>Stop</button>
+          <button class="button" onClick={this.reset.bind(this)}>Reset</button>
+        </nav>
+        <div class="stopwatch">{this.getFormattedTime()}</div>
+        <ul class="results"></ul>
+      </div>
+    );
   }
 }
-
-const stopwatch = new Stopwatch(
-document.querySelector('.stopwatch'));
-
-var startButton = document.getElementById('start');
-startButton.addEventListener('click', () => stopwatch.start());
-
-var stopButton = document.getElementById('stop');
-stopButton.addEventListener('click', () => stopwatch.stop());
-
-var resetButton = document.getElementById('resetWatch');
-resetButton.addEventListener('click', () => stopwatch.reset());
 
 function pad0(value) {
   let result = value.toString();
@@ -72,3 +96,5 @@ function pad0(value) {
   }
   return result;
 }
+
+ReactDOM.render(<Stopwatch />, document.getElementById("app"));
